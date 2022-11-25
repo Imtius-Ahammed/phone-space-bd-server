@@ -41,6 +41,7 @@ async function run(){
   try{
     const phoneCategoriesCollection = client.db('phoneSpaceBD').collection('phoneCategories');
     const allPhoneCategory = client.db('phoneSpaceBD').collection('categoryCollections');
+    const  phoneOrderCollections= client.db('phoneSpaceBD').collection('phoneOrders');
     app.get('/phoneCategories', async(req,res)=>{
       const query = {};
       const options = await phoneCategoriesCollection.find(query).toArray();
@@ -53,6 +54,26 @@ async function run(){
       const categoryPhones = await allPhoneCategory.find(query).toArray();
       res.send(categoryPhones)
     });
+    //getOrders
+
+    app.get('/orders',async(req,res)=>{
+      const email = req.query.email;
+      const query = {email: email};
+      const orders = await phoneOrderCollections.find(query).toArray();
+      res.send(orders);
+    
+    })
+
+    //add Orders to database
+    app.post('/orders',async(req,res)=>{
+      const orders = req.body
+      console.log(orders)
+      const result = await phoneOrderCollections.insertOne(orders);
+      res.send(result);
+    })
+    
+
+
 
     //jwt
     app.get('/jwt',async(req, res)=>{
