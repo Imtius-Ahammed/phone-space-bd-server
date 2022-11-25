@@ -42,6 +42,7 @@ async function run(){
     const phoneCategoriesCollection = client.db('phoneSpaceBD').collection('phoneCategories');
     const allPhoneCategory = client.db('phoneSpaceBD').collection('categoryCollections');
     const  phoneOrderCollections= client.db('phoneSpaceBD').collection('phoneOrders');
+    const  phoneBuyersCollections= client.db('phoneSpaceBD').collection('buyersCollections');
     app.get('/phoneCategories', async(req,res)=>{
       const query = {};
       const options = await phoneCategoriesCollection.find(query).toArray();
@@ -56,8 +57,12 @@ async function run(){
     });
     //getOrders
 
-    app.get('/orders',async(req,res)=>{
+    app.get('/orders',verifyJWT,async(req,res)=>{
       const email = req.query.email;
+      const decodedEmail = req.decoded.email;
+      if(eamil !== decodedEmail){
+        return res.status(403).send({message: 'forbidden access'});
+      }
       const query = {email: email};
       const orders = await phoneOrderCollections.find(query).toArray();
       res.send(orders);
@@ -79,7 +84,7 @@ async function run(){
     app.get('/jwt',async(req, res)=>{
       const email = req.query.email;
       const query = {email: email};
-      const user = await usersCollection.findOne(query);
+      const user = await phoneBuyersCollections.findOne(query);
       if(user){
         const token = jwt.sign({email}, process.env.ACCESS_TOKEN, {expiresIn: '1d'})
         return res.send({accessToken: token});
@@ -90,6 +95,15 @@ async function run(){
       res.status(403).send({accessToken: ''})
     })
 
+
+
+    //add buyers to database
+
+    app.post('/buyers',async(req,res)=>{
+      const buyer = req.body;
+      const result = await phoneBuyersCollections.insertOne(buyer);
+      res.send(result);
+    })
 
   }
   finally{
