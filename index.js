@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
@@ -60,7 +60,7 @@ async function run(){
     app.get('/orders',verifyJWT,async(req,res)=>{
       const email = req.query.email;
       const decodedEmail = req.decoded.email;
-      if(eamil !== decodedEmail){
+      if(email !== decodedEmail){
         return res.status(403).send({message: 'forbidden access'});
       }
       const query = {email: email};
@@ -68,6 +68,8 @@ async function run(){
       res.send(orders);
     
     })
+
+   
 
     //add Orders to database
     app.post('/orders',async(req,res)=>{
@@ -95,8 +97,12 @@ async function run(){
       res.status(403).send({accessToken: ''})
     })
 
-
-
+  //get buyers
+   app.get('/buyers',async(req,res)=>{
+    const query = {};
+    const buyers = await phoneBuyersCollections.find(query).toArray();
+    res.send(buyers);
+   })
     //add buyers to database
 
     app.post('/buyers',async(req,res)=>{
@@ -105,6 +111,40 @@ async function run(){
       res.send(result);
     })
 
+    //check admin
+    app.get('/buyers/admin/:email',async(req,res)=>{
+      const email = req.params.email;
+      const query = {email}
+      const user = await phoneBuyersCollections.findOne(query);
+      res.send({isAdmin: user?.role === "admin"});
+    })
+
+
+     //get buyer
+    app.get('/buyers/buyer/:email',async(req,res)=>{
+      const email = req.params.email;
+      const query = {email}
+      const user = await phoneBuyersCollections.findOne(query);
+      res.send({isBuyer: user?.role === "buyer"});
+    })
+
+
+   //get seller
+    app.get('/buyers/seller/:email',async(req,res)=>{
+      const email = req.params.email;
+      const query = {email}
+      const user = await phoneBuyersCollections.findOne(query);
+      res.send({isSeller: user?.role === "seller"});
+    })
+    //check seller
+    // app.get('/buyers/:role',async(req,res)=>{
+    //   const role = req.params.role;
+    //   const query = {role}
+    //   const user = await phoneBuyersCollections.findOne(query);
+    //   res.send({isSeller: user?.role === "seller"});
+    //   console.log(user);
+    // })
+  
   }
   finally{
 
