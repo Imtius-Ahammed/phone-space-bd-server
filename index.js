@@ -160,6 +160,7 @@ async function run(){
         const result = await phoneBuyersCollections.deleteOne(filter);
         res.send(result);
       })
+     
 
 
      //get product
@@ -179,7 +180,7 @@ async function run(){
         res.send(result);
       });
 
-      
+
 
       //filter the seller products
 
@@ -187,9 +188,21 @@ async function run(){
         const seller_role = req.params.seller_role;
         const query = {seller_role:seller_role};
         const cursor = allPhoneCategory.find(query);
-        const services = await cursor.toArray();
-        res.send(services);
+        const sellerProducts = await cursor.toArray();
+        res.send(sellerProducts);
       });
+
+
+      //delete Product
+
+      app.delete('/addproduct/:id',verifyJWT, async(req,res)=>{
+        const id = req.params.id;
+        const filter = {
+          _id: ObjectId(id)
+        };
+        const result = await allPhoneCategory.deleteOne(filter);
+        res.send(result);
+      })
 
 
   
