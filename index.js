@@ -43,7 +43,7 @@ async function run(){
     const allPhoneCategory = client.db('phoneSpaceBD').collection('categoryCollections');
     const  phoneOrderCollections= client.db('phoneSpaceBD').collection('phoneOrders');
     const  phoneBuyersCollections= client.db('phoneSpaceBD').collection('buyersCollections');
-    const  addedProductCollections= client.db('phoneSpaceBD').collection('addedProducts');
+    
 
 
     app.get('/phoneCategories', async(req,res)=>{
@@ -100,6 +100,7 @@ async function run(){
       res.status(403).send({accessToken: ''})
     })
 
+
   //get buyers
    app.get('/buyers',async(req,res)=>{
     const query = {};
@@ -131,13 +132,6 @@ async function run(){
       res.send({isBuyer: user?.role === "buyer"});
     })
 
-  
-
-
-
-   
-  
-
 
    //get one seller
     app.get('/buyers/seller/:email',async(req,res)=>{
@@ -167,14 +161,36 @@ async function run(){
         res.send(result);
       })
 
-      
+
+     //get product
+      app.get("/addproduct", async (req, res) => {
+        const query = {};
+        const cursor = allPhoneCategory.find(query);
+        const services = await cursor.toArray();
+        res.send(services);
+      });
+
+
       //product add
 
       app.post("/addproduct", verifyJWT, async (req, res) => {
         const postProduct = req.body;
-        const result = await addedProductCollections.insertOne(postProduct);
+        const result = await allPhoneCategory.insertOne(postProduct);
         res.send(result);
       });
+
+      
+
+      //filter the seller products
+
+      app.get("/addproduct/:seller_role", async (req, res) => {
+        const seller_role = req.params.seller_role;
+        const query = {seller_role:seller_role};
+        const cursor = allPhoneCategory.find(query);
+        const services = await cursor.toArray();
+        res.send(services);
+      });
+
 
   
 
