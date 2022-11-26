@@ -120,7 +120,7 @@ async function run(){
     })
 
 
-     //get buyer
+     //get findOne buyer
     app.get('/buyers/buyer/:email',async(req,res)=>{
       const email = req.params.email;
       const query = {email}
@@ -128,22 +128,35 @@ async function run(){
       res.send({isBuyer: user?.role === "buyer"});
     })
 
+  
 
-   //get seller
+
+
+   
+  
+
+
+   //get one seller
     app.get('/buyers/seller/:email',async(req,res)=>{
       const email = req.params.email;
       const query = {email}
       const user = await phoneBuyersCollections.findOne(query);
       res.send({isSeller: user?.role === "seller"});
     })
-    //check seller
-    // app.get('/buyers/:role',async(req,res)=>{
-    //   const role = req.params.role;
-    //   const query = {role}
-    //   const user = await phoneBuyersCollections.findOne(query);
-    //   res.send({isSeller: user?.role === "seller"});
-    //   console.log(user);
-    // })
+
+
+       //get all buyer and seller
+       app.get('/buyers/:role',async (req,res)=>{
+        const role = req.params.role;
+        const query = {role: role};
+        const allbuyer = await phoneBuyersCollections.find(query).toArray();
+        res.send(allbuyer);
+      });
+
+  
+
+   
+   
   
   }
   finally{
