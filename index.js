@@ -43,11 +43,14 @@ async function run(){
     const allPhoneCategory = client.db('phoneSpaceBD').collection('categoryCollections');
     const  phoneOrderCollections= client.db('phoneSpaceBD').collection('phoneOrders');
     const  phoneBuyersCollections= client.db('phoneSpaceBD').collection('buyersCollections');
+    const  addedProductCollections= client.db('phoneSpaceBD').collection('addedProducts');
+
+
     app.get('/phoneCategories', async(req,res)=>{
       const query = {};
       const options = await phoneCategoriesCollection.find(query).toArray();
       res.send(options);
-    })
+    });
 
     app.get('/category/:category_id',async (req,res)=>{
       const category_id = req.params.category_id;
@@ -67,7 +70,7 @@ async function run(){
       const orders = await phoneOrderCollections.find(query).toArray();
       res.send(orders);
     
-    })
+    });
 
    
 
@@ -77,7 +80,7 @@ async function run(){
       console.log(orders)
       const result = await phoneOrderCollections.insertOne(orders);
       res.send(result);
-    })
+    });
     
 
 
@@ -163,6 +166,15 @@ async function run(){
         const result = await phoneBuyersCollections.deleteOne(filter);
         res.send(result);
       })
+
+      
+      //product add
+
+      app.post("/addproduct", verifyJWT, async (req, res) => {
+        const postProduct = req.body;
+        const result = await addedProductCollections.insertOne(postProduct);
+        res.send(result);
+      });
 
   
 
