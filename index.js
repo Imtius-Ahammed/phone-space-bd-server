@@ -153,6 +153,17 @@ async function run(){
         res.send(allbuyer);
       });
 
+      //delete Operations
+
+      app.delete('/buyers/:id',verifyJWT, async(req,res)=>{
+        const id = req.params.id;
+        const filter = {
+          _id: ObjectId(id)
+        };
+        const result = await phoneBuyersCollections.deleteOne(filter);
+        res.send(result);
+      })
+
   
 
    
