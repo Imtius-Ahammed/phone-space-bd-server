@@ -3,6 +3,8 @@ const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 const port = process.env.PORT || 5000;
 
 const app = express();
@@ -43,6 +45,7 @@ async function run(){
     const allPhoneCategory = client.db('phoneSpaceBD').collection('categoryCollections');
     const  phoneOrderCollections= client.db('phoneSpaceBD').collection('phoneOrders');
     const  phoneBuyersCollections= client.db('phoneSpaceBD').collection('buyersCollections');
+    const paymentsCollection = client.db('phoneSpaceBD').collection('payments');
     
 
 
@@ -81,6 +84,74 @@ async function run(){
       const result = await phoneOrderCollections.insertOne(orders);
       res.send(result);
     });
+
+
+    //get single order
+
+    app.get('/orders/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const orders = await phoneOrderCollections.findOne(query);
+      res.send(orders);
+  })
+
+
+
+
+
+
+
+
+
+    //payment
+    
+    app.post('/create-payment-intent', async (req, res) => {
+      const orders = req.body;
+      const price = orders.price;
+      const amount = price * 100;
+
+      const paymentIntent = await stripe.paymentIntents.create({
+          currency: 'usd',
+          amount: amount,
+          "payment_method_types": [
+              "card"
+          ]
+      });
+      res.send({
+          clientSecret: paymentIntent.client_secret,
+      });
+  }); 
+
+  app.post('/payments', async (req, res) =>{
+      const payment = req.body;
+      const result = await paymentsCollection.insertOne(payment);
+      const id = payment.ordersId
+      const filter = {_id: ObjectId(id)}
+      const updatedDoc = {
+          $set: {
+              paid: true,
+              transactionId: payment.transactionId
+          }
+      }
+      const updatedResult = await phoneOrderCollections.updateOne(filter, updatedDoc)
+      res.send(updatedResult);
+  })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
 
 
