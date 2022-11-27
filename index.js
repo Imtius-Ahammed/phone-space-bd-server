@@ -194,6 +194,7 @@ async function run(){
         const result = await allPhoneCategory.insertOne(postProduct);
         res.send(result);
       });
+   
 
 
 
@@ -206,6 +207,8 @@ async function run(){
         const sellerProducts = await cursor.toArray();
         res.send(sellerProducts);
       });
+    
+ 
 
 
       //delete Product
