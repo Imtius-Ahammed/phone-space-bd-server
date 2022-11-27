@@ -115,6 +115,21 @@ async function run(){
       res.send(result);
     })
 
+    //verify seller
+    app.put('/buyers/admin/:id',verifyJWT,async(req,res)=>{
+      const id = req.params.id;
+      const filter = {_id: ObjectId(id)}
+      const options = {upsert: true};
+      const updatedDoc = {
+        $set: {
+          sellerStatus: 'verified'
+        }
+      }
+      const result = await phoneBuyersCollections.updateOne(filter,updatedDoc,options);
+      res.send(result);
+    })
+
+
     //check admin
     app.get('/buyers/admin/:email',async(req,res)=>{
       const email = req.params.email;
