@@ -46,6 +46,7 @@ async function run(){
     const  phoneOrderCollections= client.db('phoneSpaceBD').collection('phoneOrders');
     const  phoneBuyersCollections= client.db('phoneSpaceBD').collection('buyersCollections');
     const paymentsCollection = client.db('phoneSpaceBD').collection('payments');
+   
     
 
 
@@ -225,7 +226,7 @@ async function run(){
       const query = {email}
       const user = await phoneBuyersCollections.findOne(query);
       res.send({isSeller: user?.role === "seller"});
-    })
+    }) 
 
 
        //get all buyer and seller
@@ -293,6 +294,31 @@ async function run(){
         res.send(result);
       })
 
+    
+  //advertise item verify
+
+  app.put('/addproduct/seller/:id',verifyJWT,async(req,res)=>{
+    const id = req.params.id;
+    const filter = {_id: ObjectId(id)}
+    const options = {upsert: true};
+    const updatedDoc = {
+      $set: {
+        advertiseStatus: 'advertised'
+      }
+    }
+    const result = await allPhoneCategory.updateOne(filter,updatedDoc,options);
+    res.send(result);
+  })
+
+
+  // get advertise items
+  app.get("/addproduct/seller/:advertiseStatus", async (req, res) => {
+    const advertiseStatus = req.params.advertiseStatus;
+    const query = {advertiseStatus:advertiseStatus};
+    const cursor = allPhoneCategory.find(query);
+    const sellerProducts = await cursor.toArray();
+    res.send(sellerProducts);
+  });
 
   
 
